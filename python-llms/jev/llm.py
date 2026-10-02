@@ -23,10 +23,15 @@ class JevChatModel(JevModel, BaseLLM):
             text = json.dumps(classify.reply(classify.questions.check(response["answers"])))
         else:
             users = [m for m in messages if m.get("role") == "user"]
+            text = message_text(users[-1]) if users else ""
             try:
-                state, questions = parse_request(message_text(users[-1]) if users else None)
+                state, questions = parse_request(text)
             except TypeSafeError as e:
                 # DSS's connection test and Prompt Studio users send plain text: reply with an example request.
+                # A broken JSON request, or a system prompt such as a Classify text prompt this plugin doesn't
+                # recognise, fails instead, so the example is never returned as a row's answer.
+                if text.lstrip().startswith("{") or any(m.get("role") == "system" for m in messages):
+                    raise
                 return {"text": str(e)}
             response = self.client.ask(state, questions)
             text = json.dumps(response)

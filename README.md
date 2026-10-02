@@ -66,7 +66,7 @@ Select `custom:typesafe:jev-reranker` as the reranking model of a retrieval-augm
 
 ### Prompt recipes
 
-The prompt must be a TypeSafe request, and the response is TypeSafe's JSON answer. Set the recipe's output validation to *JSON object*.
+The prompt must be a TypeSafe request, and the response is TypeSafe's JSON answer. Set the recipe's output validation to *JSON object*. A row whose request isn't valid JSON, for example because a column value contains a `"`, fails with an error showing the expected format.
 
 ```json
 {"state": "{{ticket_text}}", "questions": {"is_bug": {"type": "noul", "instructions": "Does the ticket report a product defect?"}}}
@@ -74,7 +74,7 @@ The prompt must be a TypeSafe request, and the response is TypeSafe's JSON answe
 
 ### Classify text recipe
 
-Select `custom:typesafe:jev` as the LLM of a Classify text recipe with user-provided classes. Jev picks one of the classes, with a *none fits* option. The recipe only sends class names, and its output has no probabilities.
+Select `custom:typesafe:jev` as the LLM of a Classify text recipe with user-provided classes. Jev picks one of the classes, with a *none fits* option. The recipe only sends class names, and its output has no probabilities. The plugin recognises the recipe by its prompt: if a DSS version changes that prompt, rows fail instead of getting a class.
 
 ### From code
 

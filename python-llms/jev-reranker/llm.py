@@ -23,7 +23,7 @@ class JevReranker(JevModel, BaseRerankingModel):
     def process(self, query, settings, trace):
         text = text_of(query["queryParts"])
         states = [{"query": text, "document": text_of(d.get("parts") or [])} for d in query.get("documents") or []]
-        responses = self.call(self.client.ask_each, states, {"relevant": self.question})
+        responses = self.client.ask_each(states, {"relevant": self.question})
         ranked = sorted(({"index": i, "relevanceScore": r["answers"]["relevant"]["noul"]} for i, r in enumerate(responses)),
                         key=lambda d: d["relevanceScore"], reverse=True)
         tokens = sum(r["usage"]["input_tokens"] for r in responses)

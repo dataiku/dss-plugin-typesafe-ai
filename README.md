@@ -39,6 +39,8 @@ Then:
 
 The block and the guardrail default to `custom:typesafe:jev`. On each model, **Jev version** defaults to `jev-latest`: pin a version such as `jev-1.13.0` once you have tuned thresholds on it. **Cost per million input tokens** feeds LLM Mesh cost tracking; set it to your contract.
 
+The models retry connection errors, rate limits (429) and server errors up to 4 times with backoff, honoring `retry-after`. They don't retry timeouts, and the connection's LLM Mesh retry settings don't add retries on top.
+
 ## Usage
 
 ### Structured Visual Agent: Jev Question Set block

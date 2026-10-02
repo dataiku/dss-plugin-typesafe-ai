@@ -1,6 +1,7 @@
 import dataiku
 from dataiku.llm.guardrails import BaseGuardrail
 
+from typesafe_jev.client import TypeSafeError
 from typesafe_jev.mesh import JevMesh, message_text
 from typesafe_jev.questions import GuardrailChecks
 
@@ -27,12 +28,20 @@ class JevGuardrail(BaseGuardrail):
                                   for m in messages if m.get("role") != "system"]}
         if direction == "response":
             state["response"] = input["completionResponse"].get("text")
-        result, _latency_ms = self.jev.ask_traced(state, checks, trace, "TYPESAFE_JEV_GUARDRAIL_CHECK")
+        key = direction + "GuardrailResponse"
+        try:
+            result, _latency_ms = self.jev.ask_traced(state, checks, trace, "TYPESAFE_JEV_GUARDRAIL_CHECK")
+        except TypeSafeError as e:
+            # Audit mode never stops a call, even when TypeSafe is unavailable; block mode fails closed.
+            if self.config["mode"] != "AUDIT":
+                raise
+            input[key] = {"action": "PASS_WITH_AUDIT",
+                          "auditData": [{"typesafeError": str(e), "typesafeDirection": direction}]}
+            return input
         answers = result.answers
         audit = [{"typesafeCheck": name, "typesafeNoul": answers[name]["noul"],
                   "typesafeThreshold": checks.thresholds[name], "typesafeDirection": direction} for name in answers]
         flagged = checks.flagged(answers)
-        key = direction + "GuardrailResponse"
         if not flagged:
             input[key] = {"action": "PASS"}
         elif self.config["mode"] == "AUDIT":

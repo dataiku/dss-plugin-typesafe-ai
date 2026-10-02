@@ -60,6 +60,8 @@ Add it to the guardrails of an LLM connection, a prompt recipe or a retrieval-au
 - **Check prompts** / **Check responses**: one or more yes/no checks for each, each with a **Threshold**: the check flags the call when the probability of yes is at least that value. The checks for one direction go in a single call.
 - **When a check is flagged**: block the call, or let it through and record the probabilities as audit data.
 
+If the TypeSafe call fails, block mode blocks the LLM call, and audit mode lets it through with the error in the audit data.
+
 ### TypeSafe Jev reranker
 
 Select `custom:typesafe:jev-reranker` as the reranking model of a retrieval-augmented LLM or a Knowledge Bank search tool. The relevance question and its yes/no criteria can be changed in the model settings.

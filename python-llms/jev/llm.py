@@ -19,7 +19,7 @@ class JevChatModel(JevModel, BaseLLM):
         messages = query["messages"]
         classify = ClassifyPrompt.parse(messages)
         if classify:
-            response = self.call(self.client.ask, classify.state, classify.questions.definitions)
+            response = self.client.ask(classify.state, classify.questions.definitions)
             text = json.dumps(classify.reply(classify.questions.check(response["answers"])))
         else:
             users = [m for m in messages if m.get("role") == "user"]
@@ -28,7 +28,7 @@ class JevChatModel(JevModel, BaseLLM):
             except TypeSafeError as e:
                 # DSS's connection test and Prompt Studio users send plain text: reply with an example request.
                 return {"text": str(e)}
-            response = self.call(self.client.ask, state, questions)
+            response = self.client.ask(state, questions)
             text = json.dumps(response)
         prompt_tokens, completion_tokens = response["usage"]["input_tokens"], response["usage"]["output_tokens"]
         return {

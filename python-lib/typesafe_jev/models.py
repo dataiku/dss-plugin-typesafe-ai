@@ -1,8 +1,6 @@
 """What the Jev chat model and the Jev reranker share."""
 import json
 
-from dataiku.llm.python import RetryableException
-
 from typesafe_jev.client import JevClient, TypeSafeError
 
 EXAMPLE_REQUEST = {
@@ -34,7 +32,7 @@ def parse_request(text):
 
 
 class JevModel:
-    """Base for the plugin's LLM Mesh models: API client, cost tracking and retries."""
+    """Base for the plugin's LLM Mesh models: API client and cost tracking."""
 
     def set_config(self, config, plugin_config):
         self.config = config
@@ -42,13 +40,3 @@ class JevModel:
 
     def cost(self, tokens):
         return tokens * float(self.config["cost_per_million_input_tokens"]) / 1e6
-
-    @staticmethod
-    def call(fn, *args):
-        """Runs a TypeSafe call, letting the LLM Mesh retry what TypeSafe reports as transient."""
-        try:
-            return fn(*args)
-        except TypeSafeError as e:
-            if e.retryable:
-                raise RetryableException(str(e))
-            raise

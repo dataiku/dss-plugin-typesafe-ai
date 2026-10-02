@@ -11,13 +11,15 @@ MAX_PARALLEL_CALLS = 16
 
 
 class TypeSafeError(Exception):
-    def __init__(self, message, retryable=False):
-        super().__init__(message)
-        self.retryable = retryable
+    pass
 
 
 class JevClient:
-    """Calls POST /v1/systemone, retrying rate limits and server errors with backoff."""
+    """Calls POST /v1/systemone, retrying connection errors, rate limits and server errors with backoff.
+
+    This is the only retry layer. Timeouts are not retried, and failures are not handed to the LLM Mesh to retry
+    again, so a hung API costs one timeout.
+    """
 
     def __init__(self, api_key, model, timeout, base_url=DEFAULT_BASE_URL):
         if not api_key:
@@ -28,7 +30,7 @@ class JevClient:
         self.session = requests.Session()
         self.session.headers["Authorization"] = "Bearer " + api_key
         # Judgments have no side effects, so retrying a POST is safe.
-        retry = Retry(total=4, backoff_factor=1, status_forcelist=RETRYABLE_STATUSES,
+        retry = Retry(total=4, read=0, backoff_factor=1, status_forcelist=RETRYABLE_STATUSES,
                       allowed_methods=frozenset(["POST"]), raise_on_status=False)
         adapter = HTTPAdapter(max_retries=retry, pool_maxsize=MAX_PARALLEL_CALLS)
         self.session.mount("https://", adapter)
@@ -44,10 +46,9 @@ class JevClient:
         try:
             resp = self.session.post(self.url, json=payload, timeout=self.timeout)
         except requests.RequestException as e:
-            raise TypeSafeError("TypeSafe API call failed: %s" % e, retryable=True) from e
+            raise TypeSafeError("TypeSafe API call failed: %s" % e) from e
         if resp.status_code != 200:
-            raise TypeSafeError("TypeSafe API returned HTTP %s: %s" % (resp.status_code, resp.text[:1000]),
-                                retryable=resp.status_code in RETRYABLE_STATUSES)
+            raise TypeSafeError("TypeSafe API returned HTTP %s: %s" % (resp.status_code, resp.text[:1000]))
         return resp.json()
 
     def ask_each(self, states, questions):

@@ -1,0 +1,9 @@
+# DSS specific stuff
+dist/
+.wlock
+.ts
+
+__pycache__/
+*.py[cod]
+.DS_Store
+*.zip

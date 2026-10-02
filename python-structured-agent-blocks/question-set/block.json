@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "label": "Jev Question Set",
+    "description": "Asks typed yes/no, choice and score questions about one input in a single Jev call, and saves each answer to the agent state.",
+    "icon": "fas fa-cube"
+  },
+  "pyClazzName": "typesafe_jev.blocks.QuestionSetBlock",
+  "params": [
+    {
+      "name": "llm",
+      "label": "TypeSafe Jev model",
+      "type": "LLM",
+      "llmUsagePurpose": "GENERIC_COMPLETION",
+      "mandatory": true,
+      "defaultValue": "custom:typesafe:jev",
+      "description": "A Chat completion model of type TypeSafe Jev, such as custom:typesafe:jev."
+    },
+    {
+      "name": "input_source",
+      "label": "Judge",
+      "type": "SELECT",
+      "defaultValue": "latest_user",
+      "selectChoices": [
+        {
+          "value": "latest_user",
+          "label": "Latest user message"
+        },
+        {
+          "value": "state",
+          "label": "Agent state value"
+        },
+        {
+          "value": "scratchpad",
+          "label": "Scratchpad value"
+        }
+      ]
+    },
+    {
+      "name": "input_key",
+      "label": "Input key",
+      "type": "STRING",
+      "visibilityCondition": "model.input_source != 'latest_user'",
+      "description": "Top-level key of the state or scratchpad value to judge."
+    },
+    {
+      "name": "questions_mode",
+      "label": "Define questions",
+      "type": "SELECT",
+      "defaultValue": "FORM",
+      "selectChoices": [
+        {
+          "value": "FORM",
+          "label": "With the form"
+        },
+        {
+          "value": "JSON",
+          "label": "As raw JSON (any TypeSafe question)"
+        }
+      ]
+    },
+    {
+      "name": "questions",
+      "label": "Questions",
+      "type": "OBJECT_LIST",
+      "visibilityCondition": "model.questions_mode != 'JSON'",
+      "description": "Independent questions about the same input, sent together in one Jev call. They cannot see each other's answers.",
+      "subParams": [
+        {
+          "name": "id",
+          "label": "Name",
+          "type": "STRING",
+          "mandatory": true,
+          "description": "Letters, digits and underscores, starting with a letter, e.g. team. Becomes the output column or state key."
+        },
+        {
+          "name": "type",
+          "label": "Type",
+          "type": "SELECT",
+          "mandatory": true,
+          "defaultValue": "noul",
+          "selectChoices": [
+            {
+              "value": "noul",
+              "label": "Yes / No: probability of yes"
+            },
+            {
+              "value": "choice",
+              "label": "Choice: one option out of a set"
+            },
+            {
+              "value": "score",
+              "label": "Score: position on ordered levels"
+            }
+          ]
+        },
+        {
+          "name": "instructions",
+          "label": "Question",
+          "type": "TEXTAREA",
+          "mandatory": true,
+          "description": "Ask one narrow judgment. Refer to JSON fields of the input with backticks, e.g. `ticket_text`."
+        },
+        {
+          "name": "yes_criteria",
+          "label": "What counts as yes",
+          "type": "TEXTAREA",
+          "visibilityCondition": "model.type == 'noul'",
+          "description": "Optional. Describe both yes and no, or neither."
+        },
+        {
+          "name": "no_criteria",
+          "label": "What counts as no",
+          "type": "TEXTAREA",
+          "visibilityCondition": "model.type == 'noul'"
+        },
+        {
+          "name": "options",
+          "label": "Options",
+          "type": "OBJECT_LIST",
+          "visibilityCondition": "model.type == 'choice'",
+          "description": "At least 2. Add a catch-all option when nothing may fit.",
+          "subParams": [
+            {
+              "name": "key",
+              "label": "Option",
+              "type": "STRING",
+              "mandatory": true
+            },
+            {
+              "name": "description",
+              "label": "When to choose it",
+              "type": "TEXTAREA",
+              "mandatory": true
+            }
+          ]
+        },
+        {
+          "name": "levels",
+          "label": "Levels, lowest first",
+          "type": "OBJECT_LIST",
+          "visibilityCondition": "model.type == 'score'",
+          "description": "2 to 10 concrete situations. The first level is 0; the score can fall between levels.",
+          "subParams": [
+            {
+              "label": "Level $index",
+              "type": "SEPARATOR"
+            },
+            {
+              "name": "description",
+              "label": "Situation",
+              "type": "TEXTAREA",
+              "mandatory": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "questions_json",
+      "label": "Questions JSON",
+      "type": "TEXTAREA",
+      "visibilityCondition": "model.questions_mode == 'JSON'",
+      "description": "A JSON object of named TypeSafe questions, see https://docs.typesafe.ai/primitives",
+      "defaultValue": "{\n  \"needs_reply\": {\"type\": \"noul\", \"instructions\": \"Does this support ticket need a human reply?\"},\n  \"team\": {\"type\": \"choice\", \"instructions\": \"Which team should own this ticket?\", \"criteria\": {\"billing\": \"Payments, invoices or subscriptions\", \"technical\": \"Product defects or integration problems\", \"general\": \"All other requests\"}},\n  \"urgency\": {\"type\": \"score\", \"instructions\": \"How urgent is this ticket?\", \"criteria\": [\"Routine\", \"Soon\", \"Urgent\"]}\n}"
+    },
+    {
+      "name": "output_key",
+      "label": "Save details as",
+      "type": "STRING",
+      "defaultValue": "jev_judgments",
+      "mandatory": true,
+      "description": "Each answer is saved under its question name. Full answers, model, usage and latency go under this key, and a readable summary under <key>_summary."
+    }
+  ]
+}

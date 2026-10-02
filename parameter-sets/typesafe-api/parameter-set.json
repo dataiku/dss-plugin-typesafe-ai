@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "label": "TypeSafe API key",
+    "pluralLabel": "TypeSafe API keys",
+    "description": "API key for the TypeSafe System One API. Get one at https://console.typesafe.ai/settings/keys",
+    "icon": "fas fa-key"
+  },
+
+  "defaultDefinableInline": false,
+  "defaultDefinableAtProjectLevel": false,
+
+  "params": [
+    {
+      "name": "api_key",
+      "label": "API key",
+      "type": "PASSWORD",
+      "mandatory": true
+    },
+    {
+      "name": "base_url",
+      "label": "API base URL",
+      "type": "STRING",
+      "defaultValue": "https://api.typesafe.ai",
+      "description": "Only change this for a private TypeSafe endpoint."
+    }
+  ]
+}

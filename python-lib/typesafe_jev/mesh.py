@@ -1,5 +1,6 @@
 """Asking a Jev chat model of the LLM Mesh."""
 import json
+import time
 from dataclasses import dataclass
 
 from typesafe_jev.client import TypeSafeError
@@ -52,6 +53,19 @@ class JevMesh:
 
     def ask(self, state, questions):
         return self.result(self.completion(state, questions).execute(), questions)
+
+    def ask_traced(self, state, questions, trace, span_name):
+        """ask(), recorded as a span_name subspan of trace that holds the LLM Mesh call's own trace.
+
+        Returns (JevResult, latency in ms).
+        """
+        with trace.subspan(span_name) as llm_trace:
+            started = time.monotonic()
+            response = self.completion(state, questions).execute()
+            latency_ms = round((time.monotonic() - started) * 1000, 1)
+            if response.trace:
+                llm_trace.append_trace(response.trace)
+        return self.result(response, questions), latency_ms
 
     def ask_each(self, states, questions):
         """One LLM Mesh batch; each item is a JevResult, or the TypeSafeError for that state."""

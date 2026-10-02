@@ -27,7 +27,8 @@ class JevGuardrail(BaseGuardrail):
                                   for m in messages if m.get("role") != "system"]}
         if direction == "response":
             state["response"] = input["completionResponse"].get("text")
-        answers = self.jev.ask(state, checks).answers
+        result, _latency_ms = self.jev.ask_traced(state, checks, trace, "TYPESAFE_JEV_GUARDRAIL_CHECK")
+        answers = result.answers
         audit = [{"typesafeCheck": name, "typesafeNoul": answers[name]["noul"],
                   "typesafeThreshold": checks.thresholds[name], "typesafeDirection": direction} for name in answers]
         flagged = checks.flagged(answers)

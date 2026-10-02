@@ -1,5 +1,3 @@
-import time
-
 from dataiku.llm.python.blocks_graph import BlockHandler, NextBlock
 
 from typesafe_jev.mesh import JevMesh, message_text
@@ -17,14 +15,7 @@ class QuestionSetBlock(BlockHandler):
             raise ValueError("'Save details as' must differ from the question names")
         state = self._input(config)
         jev = JevMesh(self.agent.project.get_llm(required(config.get("llm"), "TypeSafe Jev model")))
-
-        with trace.subspan("DKU_AGENT_LLM_CALL") as llm_trace:
-            started = time.monotonic()
-            response = jev.completion(state, questions).execute()
-            latency_ms = round((time.monotonic() - started) * 1000, 1)
-            if response.trace:
-                llm_trace.append_trace(response.trace)
-        result = jev.result(response, questions)
+        result, latency_ms = jev.ask_traced(state, questions, trace, "DKU_AGENT_LLM_CALL")
 
         summary = questions.summary(result.answers)
         for name, answer in result.answers.items():

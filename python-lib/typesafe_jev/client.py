@@ -49,7 +49,10 @@ class JevClient:
             raise TypeSafeError("TypeSafe API call failed: %s" % e) from e
         if resp.status_code != 200:
             raise TypeSafeError("TypeSafe API returned HTTP %s: %s" % (resp.status_code, resp.text[:1000]))
-        return resp.json()
+        try:
+            return resp.json()
+        except ValueError as e:
+            raise TypeSafeError("TypeSafe API returned a response that isn't JSON: %s" % resp.text[:200]) from e
 
     def ask_each(self, states, questions):
         """Asks the same questions about each state, in parallel; responses in the same order."""

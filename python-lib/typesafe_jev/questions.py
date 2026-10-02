@@ -9,6 +9,8 @@ from typesafe_jev.client import TypeSafeError
 
 QUESTION_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
 QUESTION_TYPES = ("noul", "choice", "score")
+ANSWER_FIELDS = {"noul": ("noul",), "choice": ("choice", "confidence", "probabilities"),
+                 "score": ("score", "confidence", "probabilities", "legend")}
 
 
 def required(value, label):
@@ -32,7 +34,9 @@ class QuestionSet:
         if not QUESTION_NAME.fullmatch(name):
             raise TypeSafeError("Question name '%s' must start with a letter and contain only letters, digits or "
                                 "underscores" % name)
-        kind = (question or {}).get("type")
+        if not isinstance(question, dict):
+            raise TypeSafeError("Question '%s' must be a JSON object" % name)
+        kind = question.get("type")
         if kind not in QUESTION_TYPES:
             raise TypeSafeError("Question '%s': type must be noul, choice or score, got %r" % (name, kind))
         if not question.get("instructions"):
@@ -91,20 +95,22 @@ class QuestionSet:
         return name in self.definitions
 
     def check(self, answers):
-        """Jev's answers, verified to cover every question with the expected type."""
+        """Jev's answers, verified to cover every question with the expected type and fields."""
+        if not isinstance(answers, dict):
+            raise TypeSafeError("Jev returned no answers")
         if set(answers) != set(self.definitions):
             raise TypeSafeError("Jev answered %s, expected %s" % (sorted(answers), sorted(self.definitions)))
         checked = {}
         for name, answer in answers.items():
             kind = self.definitions[name]["type"]
-            if answer.get("type") != kind or kind not in answer:
-                raise TypeSafeError("Question '%s': expected a %s answer, got %s" % (name, kind, json.dumps(answer)[:200]))
-            checked[name] = {"type": kind, kind: answer[kind]}
-            if kind != "noul":
-                checked[name]["confidence"] = answer["confidence"]
-                checked[name]["probabilities"] = answer["probabilities"]
-            if kind == "score":
-                checked[name]["legend"] = answer["legend"]
+            fields = ANSWER_FIELDS[kind]
+            if not isinstance(answer, dict) or answer.get("type") != kind or any(f not in answer for f in fields):
+                raise TypeSafeError("Question '%s': expected a %s answer with %s, got %s"
+                                    % (name, kind, ", ".join(fields), json.dumps(answer, default=str)[:200]))
+            if kind == "choice" and answer["choice"] not in self.definitions[name]["criteria"]:
+                raise TypeSafeError("Question '%s': Jev chose '%s', which is not one of the options"
+                                    % (name, answer["choice"]))
+            checked[name] = {"type": kind, **{field: answer[field] for field in fields}}
         return checked
 
     def summary(self, answers):

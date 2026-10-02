@@ -45,6 +45,8 @@ class ClassifyPrompt:
         if NO_CLASS in names:
             raise TypeSafeError("Class name '%s' is reserved by the TypeSafe plugin" % NO_CLASS)
         rows = [m for m in messages if m.get("role") == "user" and not m.get("partOfExample")]
+        if not rows:
+            raise TypeSafeError("Unexpected Classify text prompt: there is no text to classify")
         text = message_text(rows[-1])
         if not text.startswith(TEXT_PREFIX):
             raise TypeSafeError("Unexpected Classify text prompt: the last user message has no '%s' prefix"

@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "label": "TypeSafe Jev",
+    "description": "Jev as a Chat completion model, used by the Jev Question Set block and the guardrail, and usable in prompt recipes, the Classify text recipe and code.",
+    "icon": "fas fa-cube"
+  },
+  "params": [
+    {
+      "name": "typesafe_api",
+      "label": "TypeSafe API key",
+      "type": "PRESET",
+      "parameterSetId": "typesafe-api",
+      "mandatory": true
+    },
+    {
+      "name": "model",
+      "label": "Jev version",
+      "type": "STRING",
+      "defaultValue": "jev-latest",
+      "mandatory": true,
+      "description": "jev-latest moves with new releases. Pin a version such as jev-1.13.0 once you have tuned thresholds on it."
+    },
+    {
+      "name": "timeout_sec",
+      "label": "Timeout per API call (s)",
+      "type": "INT",
+      "defaultValue": 60,
+      "minI": 1
+    },
+    {
+      "name": "cost_per_million_input_tokens",
+      "label": "Cost per million input tokens ($)",
+      "type": "DOUBLE",
+      "defaultValue": 0.042,
+      "description": "For LLM Mesh cost tracking. TypeSafe charges input tokens only. Adjust to your contract."
+    }
+  ]
+}

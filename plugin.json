@@ -1,0 +1,21 @@
+{
+  "id": "typesafe-ai",
+  "version": "1.0.0",
+  "meta": {
+    "label": "TypeSafe AI",
+    "category": "Generative AI",
+    "description": "TypeSafe's Jev decision model in the LLM Mesh: typed yes/no, choice and score judgments in Structured Visual Agents, guardrails, reranking, prompt recipes and code.",
+    "author": "Dataiku",
+    "icon": "fas fa-cube",
+    "tags": [
+      "LLM Mesh",
+      "Generative AI",
+      "Agents",
+      "Guardrails",
+      "RAG"
+    ],
+    "url": "https://docs.typesafe.ai",
+    "licenseInfo": "Apache Software License",
+    "supportLevel": "NOT_SUPPORTED"
+  }
+}

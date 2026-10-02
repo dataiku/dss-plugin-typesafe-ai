@@ -39,7 +39,7 @@ class JevMesh:
     @staticmethod
     def result(response, questions):
         if not response.success:
-            raise TypeSafeError(response._raw.get("errorMessage") or "LLM Mesh call failed")
+            raise TypeSafeError(response.get_raw().get("errorMessage") or "LLM Mesh call failed")
         try:
             payload = json.loads(response.text)
             answers = payload["answers"]

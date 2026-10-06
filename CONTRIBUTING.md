@@ -25,12 +25,7 @@ The plugin has no code environment: it runs on the DSS built-in Python environme
 
 ## Code conventions
 
-- Every source file starts with the Apache 2.0 preamble. Check with:
-
-  ```bash
-  python3 scripts/check_license_headers.py
-  ```
-
+- Every source file starts with the Apache 2.0 preamble (copy it from any existing `.py` file).
 - Fail loudly on malformed data and failed API calls instead of falling back silently.
 - Comment only non-obvious code or decisions.
 

@@ -1,7 +1,7 @@
 # Contributors
 
 - **Youssef Jouini** ([@yjouini](https://github.com/yjouini))
-- **Chris** ([@crmapj](https://github.com/crmapj))
+- **Christiaan Burrett** ([@crmapj](https://github.com/crmapj))
 
 ---
 

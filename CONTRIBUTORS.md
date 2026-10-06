@@ -1,5 +1,8 @@
 # Contributors
 
-Thank you to everyone who has contributed to the TypeSafe AI plugin.
+- **Youssef Jouini** ([@yjouini](https://github.com/yjouini))
+- **Chris** ([@crmapj](https://github.com/crmapj))
 
-- Youssef Jouini - Dataiku
+---
+
+Want to contribute? See [Contributing](CONTRIBUTING.md) for guidelines.

@@ -23,7 +23,7 @@ See the [TypeSafe documentation](https://docs.typesafe.ai/primitives) for how to
 ## Prerequisites
 
 - DSS 15.0 or later.
-- The DSS built-in Python environment, which provides `requests`. The plugin has no code environment of its own.
+- The DSS built-in Python environment, which provides `requests`, the plugin's only third-party dependency. The plugin has no code environment of its own.
 - A TypeSafe API key from the [TypeSafe console](https://console.typesafe.ai/settings/keys).
 
 ## Installation

@@ -103,7 +103,7 @@ class JevClient(HttpClient):
 
 class OpenRouterClient(HttpClient):
     """OpenRouter's System One API (https://openrouter.ai/docs/guides/community/jev): TypeSafe's format for every decision
-    model OpenRouter serves. `model` is OpenRouter's model id, such as perplexity/pplx-decider-v1.1-27b."""
+    model OpenRouter serves. `model` is OpenRouter's model id, such as perplexity/pplx-decider-v1.2."""
 
     LABEL = "OpenRouter"
     URL = "https://openrouter.ai/api/v1/systemone"

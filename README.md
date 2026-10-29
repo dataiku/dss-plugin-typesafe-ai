@@ -48,7 +48,7 @@ Each *Decision model provider* preset selects one provider. The LLM Mesh model t
 | Provider | Preset fields | Model setting | Notes |
 | --- | --- | --- | --- |
 | TypeSafe | API key; base URL only for a private endpoint | `jev-latest`, or a pinned version such as `jev-1.13.0` | |
-| OpenRouter | API key | an OpenRouter model id, such as `perplexity/pplx-decider-v1.1-27b` or `inception/mercury-decide` | Any decision model OpenRouter serves, through its System One API |
+| OpenRouter | API key | an OpenRouter model id, such as `perplexity/pplx-decider-v1.2` or `inception/mercury-decide` | Any decision model OpenRouter serves, through its System One API |
 | Cloudflare Workers AI | API token, account ID | `clef` or `clef-flash` | |
 | OpenAI Decisions API | API key | `gpt-6-luna` | The API has no field for yes/no criteria, so they are appended to the question text |
 | Microsoft Foundry | API key, resource endpoint | your Microsoft-Decision-1 deployment name | |

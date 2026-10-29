@@ -15,7 +15,7 @@
 """What the Jev chat model and the Jev reranker share."""
 import json
 
-from typesafe_jev.client import JevClient, TypeSafeError
+from typesafe_jev.client import TypeSafeError, client_from_preset
 
 EXAMPLE_REQUEST = {
     "state": "I was charged twice for my October invoice.",
@@ -46,11 +46,11 @@ def parse_request(text):
 
 
 class JevModel:
-    """Base for the plugin's LLM Mesh models: API client and cost tracking."""
+    """Base for the plugin's LLM Mesh models: decision-model client and cost tracking."""
 
     def set_config(self, config, plugin_config):
         self.config = config
-        self.client = JevClient.from_preset(config["typesafe_api"], config["model"], int(config["timeout_sec"]))
+        self.client = client_from_preset(config["typesafe_api"], config["model"], int(config["timeout_sec"]))
 
     def cost(self, tokens):
         return tokens * float(self.config["cost_per_million_input_tokens"]) / 1e6

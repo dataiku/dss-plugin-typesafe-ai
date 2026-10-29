@@ -1,8 +1,8 @@
 # TypeSafe AI Plugin
 
-This Dataiku DSS plugin brings [TypeSafe](https://typesafe.ai)'s Jev decision model to the LLM Mesh: a Structured Visual Agent block, a guardrail and a reranker, all recorded in LLM Mesh usage, cost and traces.
+This Dataiku DSS plugin brings System One decision models to the LLM Mesh: [TypeSafe](https://typesafe.ai)'s Jev, and decision models from OpenRouter, Cloudflare, OpenAI and Microsoft Foundry. It provides a Structured Visual Agent block, a guardrail and a reranker, all recorded in LLM Mesh usage, cost and traces.
 
-Jev answers typed questions with calibrated probabilities instead of generating text:
+A decision model answers typed questions with probabilities instead of generating text:
 
 - **Yes / No** (`noul`): the probability of yes
 - **Choice**: one option, with the probability of each option
@@ -18,13 +18,13 @@ See the [TypeSafe documentation](https://docs.typesafe.ai/primitives) for how to
 | `TypeSafe Jev guardrail` | Guardrail | Blocks or audits an LLM call when a yes/no check on the prompt or response reaches its threshold |
 | `TypeSafe Jev` | LLM Mesh model (Chat completion) | Answers a TypeSafe request; used by the Structured Visual Agent block and the guardrail, and usable in prompt recipes, the Classify text recipe and code |
 | `TypeSafe Jev reranker` | LLM Mesh model (Reranking) | Scores each retrieved document by the probability that it answers the query |
-| `TypeSafe API key` | Parameter set | Holds the API key |
+| `Decision model provider` | Parameter set | Selects the provider and holds its credentials |
 
 ## Prerequisites
 
 - DSS 15.0 or later.
 - The DSS built-in Python environment, which provides `requests`, the plugin's only third-party dependency. The plugin has no code environment of its own.
-- A TypeSafe API key from the [TypeSafe console](https://console.typesafe.ai/settings/keys).
+- Credentials for each hosted provider you use, for example a TypeSafe API key from the [TypeSafe console](https://console.typesafe.ai/settings/keys).
 
 ## Installation
 
@@ -32,14 +32,28 @@ Install from **Plugins > Add Plugin > From Git repository**, or run `make plugin
 
 Then:
 
-1. In **Plugins > TypeSafe AI > Settings**, add a *TypeSafe API key* preset.
-2. In **Administration > Connections**, create a *Custom LLM* connection named `typesafe` with two models, both using the preset:
+1. In **Plugins > TypeSafe AI > Settings**, add a *Decision model provider* preset for each provider you use (see [Providers](#providers)).
+2. In **Administration > Connections**, create a *Custom LLM* connection. For TypeSafe, name it `typesafe` and add two models, both using the preset:
    - id `jev`, type *TypeSafe Jev*, capability *Chat completion*
    - id `jev-reranker`, type *TypeSafe Jev reranker*, capability *Reranking*
 
-The block and the guardrail default to `custom:typesafe:jev`. On each model, **Jev version** defaults to `jev-latest`: pin a version such as `jev-1.13.0` once you have tuned thresholds on it. **Cost per million input tokens** feeds LLM Mesh cost tracking; set it to your contract.
+The block and the guardrail default to `custom:typesafe:jev`; point them at another connection's model to use another provider. On each model, **Model** names the model to call: for TypeSafe it defaults to `jev-latest`, and you should pin a version such as `jev-1.13.0` once you have tuned thresholds on it. **Cost per million input tokens** feeds LLM Mesh cost tracking; set it to your contract.
 
 The models retry connection errors, rate limits (429) and server errors up to 4 times with backoff, honoring `retry-after`. They don't retry timeouts, and the connection's LLM Mesh retry settings don't add retries on top.
+
+## Providers
+
+Each *Decision model provider* preset selects one provider. The LLM Mesh model that uses it names the model to call in its **Model** setting.
+
+| Provider | Preset fields | Model setting | Notes |
+| --- | --- | --- | --- |
+| TypeSafe | API key; base URL only for a private endpoint | `jev-latest`, or a pinned version such as `jev-1.13.0` | |
+| OpenRouter | API key | an OpenRouter model id, such as `perplexity/pplx-decider-v1.2` or `inception/mercury-decide` | Any decision model OpenRouter serves, through its System One API |
+| Cloudflare Workers AI | API token, account ID | `clef` or `clef-flash` | |
+| OpenAI Decisions API | API key | `gpt-6-luna` | The API has no field for yes/no criteria, so they are appended to the question text |
+| Microsoft Foundry | API key, resource endpoint | your Microsoft-Decision-1 deployment name | |
+
+Every provider returns the same answer shape, so the block, the guardrail, the reranker and code work the same whichever model answers. Set **Cost per million input tokens** on each model to that provider's price.
 
 ## Usage
 
@@ -103,7 +117,7 @@ result.answers["team"]["choice"], result.answers["team"]["confidence"], result.c
 
 ## Data handling
 
-Inputs and questions are sent to the TypeSafe API outside your DSS instance. Jev probabilities are not guarantees: evaluate thresholds on your own data before relying on them.
+Inputs and questions are sent to the selected provider's API outside your DSS instance. Probabilities are not guarantees: fit thresholds on your own labelled data before relying on them.
 
 ## Release notes
 

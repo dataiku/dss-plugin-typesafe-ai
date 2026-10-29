@@ -1,18 +1,44 @@
 {
   "meta": {
-    "label": "TypeSafe API key",
-    "pluralLabel": "TypeSafe API keys",
-    "description": "API key for the TypeSafe System One API. Get one at https://console.typesafe.ai/settings/keys",
+    "label": "Decision model provider",
+    "pluralLabel": "Decision model providers",
+    "description": "Where a System One decision model runs, and the credentials to call it. TypeSafe API keys: https://console.typesafe.ai/settings/keys",
     "icon": "fas fa-key"
   },
-
   "defaultDefinableInline": false,
   "defaultDefinableAtProjectLevel": false,
-
   "params": [
     {
+      "name": "provider",
+      "label": "Provider",
+      "type": "SELECT",
+      "defaultValue": "typesafe",
+      "selectChoices": [
+        {
+          "value": "typesafe",
+          "label": "TypeSafe"
+        },
+        {
+          "value": "openrouter",
+          "label": "OpenRouter (any decision model it serves)"
+        },
+        {
+          "value": "cloudflare",
+          "label": "Cloudflare Workers AI"
+        },
+        {
+          "value": "openai",
+          "label": "OpenAI Decisions API"
+        },
+        {
+          "value": "foundry",
+          "label": "Microsoft Foundry (Microsoft-Decision-1)"
+        }
+      ]
+    },
+    {
       "name": "api_key",
-      "label": "API key",
+      "label": "API key or token",
       "type": "PASSWORD",
       "mandatory": true
     },
@@ -21,7 +47,22 @@
       "label": "API base URL",
       "type": "STRING",
       "defaultValue": "https://api.typesafe.ai",
-      "description": "Only change this for a private TypeSafe endpoint."
+      "description": "Only change this for a private TypeSafe endpoint.",
+      "visibilityCondition": "model.provider == 'typesafe' || !model.provider"
+    },
+    {
+      "name": "endpoint",
+      "label": "Foundry resource endpoint",
+      "type": "STRING",
+      "visibilityCondition": "model.provider == 'foundry'",
+      "description": "From the deployment details page, for example https://<resource>.services.ai.azure.com. The model name is the deployment name."
+    },
+    {
+      "name": "account_id",
+      "label": "Cloudflare account ID",
+      "type": "STRING",
+      "visibilityCondition": "model.provider == 'cloudflare'",
+      "description": "Under Account Home > Account details in the Cloudflare dashboard."
     }
   ]
 }

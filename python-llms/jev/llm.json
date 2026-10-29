@@ -7,18 +7,18 @@
   "params": [
     {
       "name": "typesafe_api",
-      "label": "TypeSafe API key",
+      "label": "Provider",
       "type": "PRESET",
       "parameterSetId": "typesafe-api",
       "mandatory": true
     },
     {
       "name": "model",
-      "label": "Jev version",
+      "label": "Model",
       "type": "STRING",
       "defaultValue": "jev-latest",
       "mandatory": true,
-      "description": "jev-latest moves with new releases. Pin a version such as jev-1.13.0 once you have tuned thresholds on it."
+      "description": "The model the provider calls. For TypeSafe, jev-latest or a pinned version such as jev-1.13.0; for other providers, see the README's Providers table."
     },
     {
       "name": "timeout_sec",
